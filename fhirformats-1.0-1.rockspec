@@ -1,17 +1,9 @@
--- This file was automatically generated for the LuaDist project.
-
 package = "fhirformats"
 version = "1.0-1"
--- LuaDist source
 source = {
-  tag = "1.0-1",
-  url = "git://github.com/LuaDist-testing/fhirformats.git"
+  url = "git://github.com/vadi2/fhir-formats.git",
+  tag = "v1.0"
 }
--- Original source
--- source = {
---   url = "git://github.com/vadi2/fhir-formats.git",
---   tag = "v1.0"
--- }
 description = {
   summary = "FHIR XML to/from JSON converter in Lua",
   detailed = [[
