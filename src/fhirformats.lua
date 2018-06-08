@@ -16,7 +16,7 @@
   limitations under the License.
 ]]
 
-local cjson, datafile, lunajson, xml
+local rapidjson, datafile, lunajson, xml
 
 -- when loading via Web, load the pure-Lua libraries
 if js and js.global then
@@ -31,7 +31,7 @@ if js and js.global then
 else
   -- otherwise load the libraries with native code for perf
   xml = require("xml")
-  cjson = require("cjson")
+  rapidjson = require("rapidjson")
   -- datafile is used by LuaRocks exclusively
   datafile = require("datafile")
 end
@@ -51,9 +51,9 @@ local fhir_data
 local null_value
 local json_decode, json_encode
 
-if cjson then
-  null_value = cjson.null
-  json_decode, json_encode = cjson.decode, cjson.encode
+if rapidjson then
+  null_value = rapidjson.null
+  json_decode, json_encode = rapidjson.decode, rapidjson.encode
 elseif lunajson then
   null_value = function() end -- a blank table didn't work since sometimes we check for the table type
   json_decode = function(data)
@@ -63,7 +63,7 @@ elseif lunajson then
     return lunajson.encode(data, null_value)
   end
 else
-  error("neither cjson nor luajson libraries found for JSON parsing")
+  error("neither rapidjson nor luajson libraries found to do JSON encoding/decoding with")
 end
 
 -- credit: http://stackoverflow.com/a/4991602/72944
@@ -273,6 +273,12 @@ get_fhir_definition = function (output_stack, element_to_check)
   return fhir_data_pointer
 end
 
+-- returns true/false if the given string is a valid FHIR resource
+is_fhir_resource = function (resourcename)
+  return (fhir_data[resourcename] and 
+    (fhir_data[resourcename]._kind == "resource" or fhir_data[resourcename]._type == "Resource")) and true or false
+end
+
 -- accepts the path as a set of strings instead of a table+string, and is exposed publicly
 -- returns a copy of the fhir element with underscores removed
 get_fhir_definition_public = function(...)
@@ -308,7 +314,7 @@ make_json_datatype = function(output_stack, element_to_check)
   return newtable, pointer_inside_table
 end
 
-
+-- returns whenever the given FHIR element should be an object or an array in JSON
 get_json_datatype = function(output_stack, element_to_check)
   local fhir_data_pointer = get_fhir_definition(output_stack, element_to_check)
 
@@ -333,6 +339,7 @@ get_xml_weight = function(output_stack, element_to_check)
   end
 end
 
+-- returns the FHIR value of 'kind' for the given element
 get_datatype_kind = function(output_stack, element_to_check)
   local fhir_definition = get_fhir_definition(output_stack, element_to_check)
   if not fhir_definition then
@@ -407,10 +414,11 @@ print_data_for_node = function(node, level, output, output_levels, output_stack)
   end
 
   -- in JSON, resource type is embedded within the object.resourceType,
-  -- unlike at root level in FHIR XML
+  -- unlike at root level in FHIR XML. Do this for the root level
   if level == 1 then
     output.resourceType = node.xml
-  elseif output_stack[#output_stack] == "contained" or output_stack[#output_stack] == "resource" then
+  -- do the same for embedded resources as well
+  elseif is_fhir_resource(node.xml) then
     current_level.resourceType = node.xml
 
     output_levels[level] = output_levels[level] or {}
