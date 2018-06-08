@@ -1,0 +1,15 @@
+Module "lunajson._str_lib"
+Module "lunajson.decoder"
+Module "lunajson.encoder"
+Module "lunajson.sax"
+Module "lunajson"
+Module "slaxml"
+Module "pure-xml-dump"
+Module "pure-xml-load"
+Module "resty.prettycjson"
+
+Resource "fhir-data/fhir-elements.json" "fhir-data/fhir-elements.json"
+
+Output "fhirformats.web.lua"
+
+Main "fhirformats.lua"

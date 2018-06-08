@@ -1,0 +1,22 @@
+{
+  "resourceType" : "Encounter",
+  "id" : "f003",
+  "status" : "finished",
+  "reason" : [
+    {
+      "extension" : [
+        {
+          "url" : "http://hl7.org/fhir/StructureDefinition/encounter-primaryDiagnosis",
+          "valuePositiveInt" : 1
+        }
+      ],
+      "coding" : [
+        {
+          "system" : "http://snomed.info/sct",
+          "code" : "18099001",
+          "display" : "Retropharyngeal abscess"
+        }
+      ]
+    }
+  ]
+}
